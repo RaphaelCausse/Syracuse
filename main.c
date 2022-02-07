@@ -6,16 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     /* Convert string argv[1] to a long integer. */
     unsigned long Uo = strtol(argv[1], NULL, 10);
     unsigned long value = Uo, altitude_max = Uo, flight_time = 0, altitude_time = 0, in_altitude = 1;
-    /* Open output file, file name is argv[2]. */
     FILE *file = fopen(argv[2], "w");
     if (!file) {
-        fprintf(stderr, "\033[31m\x1b[1mError:\x1b[0m\033[0m \x1b[1m%s:\x1b[0m Failed to open the file.\n\n", argv[2]);
-        exit(2);
+        fprintf(stderr, "\033[31m\x1b[1mError:\x1b[0m\033[0m \x1b[1m%s:\x1b[0m failed to open the file.\n\n", argv[2]);
+        exit(1);
     }
     fprintf(file, "n Un\n0 %lu\n", Uo);
     while (value != 1) {

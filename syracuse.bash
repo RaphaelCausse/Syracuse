@@ -33,6 +33,9 @@ function error_args {
     exit 0
 }
 
+GRN='\033[1;32m'
+NC='\033[0m'
+
 # Check options
 arg_s=0
 while getopts "sch" options; do
@@ -52,14 +55,52 @@ if [ $# -eq 2 ] && [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; the
     if [ "main.c" -nt "Data/syracuse" ]; then
         gcc -O3 main.c -o Data/syracuse
     fi
+    # Progress bar
+    total=$(($2 - $1)); step=$((total / 10)); percent=0; bar=""; dot=40; count=0
+    echo -ne "Progress:\t[........................................] ${percent}%\r"
     for i in $(seq $1 $2); do
         ./Data/syracuse $i Data/f$i.dat
         # Collect data from data files and store them in temporary files
         head -n-3 Data/f$i.dat | tail +2 >> sequence_data && echo >> sequence_data
         echo "$i $(tail -3 Data/f$i.dat | head -1 | cut -d'=' -f2)" >> altitude_max
         echo "$i $(tail -2 Data/f$i.dat | head -1 | cut -d'=' -f2)" >> flight_time
-        echo "$i $(tail -1 Data/f$i.dat | cut -d'=' -f2)" >> altitude_time 
-    done   
+        echo "$i $(tail -1 Data/f$i.dat | cut -d'=' -f2)" >> altitude_time
+        # Progress bar
+        ((count++))
+        if [ ${count} -ge ${step} ]; then
+            bar+="##"; dot=$((dot - 2)); percent=$((percent + 5)); count=0
+            echo -ne "Progress:\t[${GRN}${bar}${NC}"
+            for i in $(seq ${dot} -1 1); do
+                echo -ne "."
+            done
+            echo -ne "] ${percent}%\r"
+        fi
+    done
+    # Bonus: data synthesis
+    sum=0
+    synth_file="Synthesis/synthese-$1-$2.txt"
+    list_files=("altitude_max" "flight_time" "altitude_time")
+    echo -e "Syracuse Synthesis [$1;$2]\n" >> ${synth_file}
+    for i in $(seq 0 2); do
+        # Collect min, max and average of each file in list_files
+        echo "${list_files[$i]}:" >> ${synth_file}
+        min_max=($(sort -k2n ${list_files[$i]} | sed -n '1p;$p' | cut -d' ' -f2))
+        echo -e "\tmin = ${min_max[0]}" >> ${synth_file}
+        echo -e "\tmax = ${min_max[1]}" >> ${synth_file}
+        len=$(cat ${list_files[$i]} | wc -l) && values=$(cat ${list_files[${i}]} | cut -d' ' -f2)
+        for i in ${values[@]}; do
+            sum=$((sum + i))   
+        done
+        avg=$(echo "scale=2; ${sum}/${len}" | bc -l)
+        echo -e "\tavg = ${avg}" >> ${synth_file}
+        # Progress bar
+        bar+="####"; dot=$((dot - 4)); percent=$((percent + 10))
+        echo -ne "Progress:\t[${GRN}${bar}${NC}"
+        for i in $(seq ${dot} -1 1); do
+            echo -ne "."
+        done
+        echo -ne "] ${percent}%\r"
+    done
     # Analyze data with gnuplot
     gnuplot -persist <<- EOFMarker
         set terminal jpeg size 1280,720
@@ -90,30 +131,16 @@ if [ $# -eq 2 ] && [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; the
         set ylabel "Nombres d'occurrences"
         plot "altitude_time" w l title "dureealtitude"
 EOFMarker
-    # Bonus: data synthesis
-    sum=0
-    synth_file="Synthesis/synthese-$1-$2.txt"
-    list_files=("altitude_max" "flight_time" "altitude_time")
-    echo -e "Syracuse Synthesis [$1;$2]\n" >> ${synth_file}
-    for i in $(seq 0 2); do
-        # Collect min, max and average of each file in list_files
-        echo "${list_files[$i]}:" >> ${synth_file}
-        min_max=($(sort -k2n ${list_files[$i]} | sed -n '1p;$p' | cut -d' ' -f2))
-        echo -e "\tmin = ${min_max[0]}" >> ${synth_file}
-        echo -e "\tmax = ${min_max[1]}" >> ${synth_file}
-        len=$(cat ${list_files[$i]} | wc -l) && values=$(cat ${list_files[${i}]} | cut -d' ' -f2)
-        for i in ${values[@]}; do
-            sum=$((sum + i))   
-        done
-        avg=$(echo "scale=2; ${sum}/${len}" | bc -l)
-        echo -e "\tavg = ${avg}" >> ${synth_file}
-    done
-    # Display synthesis if option -s is given
-    if [ ${arg_s} -eq 1 ]; then
-        cat ${synth_file}
-    fi
     # Remove temporary data files 
     rm Data/*.dat sequence_data altitude_max flight_time altitude_time
+    # Progress bar
+    bar+="########"; percent=100
+    echo -e "Progress:\t[${GRN}${bar}${NC}] ${percent}%"
+    # Display synthesis if option -s is given
+    if [ ${arg_s} -eq 1 ]; then
+        echo -e "\n"
+        cat ${synth_file}
+    fi
 else
     error_args
 fi
