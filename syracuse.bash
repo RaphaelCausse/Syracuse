@@ -103,33 +103,33 @@ if [ $# -eq 2 ] && [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; the
     done
     # Analyze data with gnuplot
     gnuplot -persist <<- EOFMarker
-        set terminal jpeg size 1280,720
+        set terminal jpeg size 1920,1080
         set output "Images/vols[$1;$2].jpeg"
         set title "Un en fonction de n pour tous les U0 dans [$1;$2]"
         set xlabel "n"
         set ylabel "Un"
-        plot "sequence_data" w l title "vols"
+        plot "sequence_data" w l lw 1 title "vols"
     reset
-        set terminal jpeg size 1280,720
+        set terminal jpeg size 1920,1080
         set output "Images/altitude[$1;$2].jpeg"
         set title "Altitude maximum atteinte en fonction de U0"
         set xlabel "U0"
         set ylabel "Altitude maximum"
-        plot "altitude_max" w l title "altitude"
+        plot "altitude_max" w l lw 1 title "altitude"  
     reset
-        set terminal jpeg size 1280,720
+        set terminal jpeg size 1920,1080
         set output "Images/dureevol[$1;$2].jpeg"
         set title "Duree de vol en fonction de U0"
         set xlabel "U0"
         set ylabel "Nombres d'occurrences"
-        plot "flight_time" w l title "dureevol"
+        plot "flight_time" w l lw 1 title "dureevol"
     reset
-        set terminal jpeg size 1280,720
+        set terminal jpeg size 1920,1080
         set output "Images/dureealtitude[$1;$2].jpeg"
         set title "Duree de vol en altitude en fonction de U0"
         set xlabel "U0"
         set ylabel "Nombres d'occurrences"
-        plot "altitude_time" w l title "dureealtitude"
+        plot "altitude_time" w l lw 1 title "dureealtitude"
 EOFMarker
     # Remove temporary data files 
     rm Data/*.dat sequence_data altitude_max flight_time altitude_time
