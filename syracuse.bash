@@ -58,13 +58,14 @@ if [ $# -eq 2 ] && [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; the
     # Progress bar
     total=$(($2 - $1)); step=$((total / 10)); percent=0; bar=""; dot=40; count=0
     echo -ne "Progress:\t[........................................] ${percent}%\r"
+    # Call C exectuable to create alll data files
     for i in $(seq $1 $2); do
-        ./Data/syracuse $i Data/f$i.dat
+        ./Data/syracuse ${i} Data/f${i}.dat
         # Collect data from data files and store them in temporary files
-        head -n-3 Data/f$i.dat | tail +2 >> sequence_data && echo >> sequence_data
-        echo "$i $(tail -3 Data/f$i.dat | head -1 | cut -d'=' -f2)" >> altitude_max
-        echo "$i $(tail -2 Data/f$i.dat | head -1 | cut -d'=' -f2)" >> flight_time
-        echo "$i $(tail -1 Data/f$i.dat | cut -d'=' -f2)" >> altitude_time
+        head -n-3 Data/f${i}.dat | tail +2 >> sequence_data && echo >> sequence_data
+        echo "${i} $(tail -3 Data/f${i}.dat | head -1 | cut -d'=' -f2)" >> altitude_max
+        echo "${i} $(tail -2 Data/f${i}.dat | head -1 | cut -d'=' -f2)" >> flight_time
+        echo "${i} $(tail -1 Data/f${i}.dat | cut -d'=' -f2)" >> altitude_time
         # Progress bar
         ((count++))
         if [ ${count} -ge ${step} ]; then
@@ -83,11 +84,11 @@ if [ $# -eq 2 ] && [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; the
     echo -e "Syracuse Synthesis [$1;$2]\n" >> ${synth_file}
     for i in $(seq 0 2); do
         # Collect min, max and average of each file in list_files
-        echo "${list_files[$i]}:" >> ${synth_file}
-        min_max=($(sort -k2n ${list_files[$i]} | sed -n '1p;$p' | cut -d' ' -f2))
+        echo "${list_files[${i}]}:" >> ${synth_file}
+        min_max=($(sort -k2n ${list_files[${i}]} | sed -n '1p;$p' | cut -d' ' -f2))
         echo -e "\tmin = ${min_max[0]}" >> ${synth_file}
         echo -e "\tmax = ${min_max[1]}" >> ${synth_file}
-        len=$(cat ${list_files[$i]} | wc -l) && values=$(cat ${list_files[${i}]} | cut -d' ' -f2)
+        len=$(cat ${list_files[${i}]} | wc -l) && values=$(cat ${list_files[${i}]} | cut -d' ' -f2)
         for i in ${values[@]}; do
             sum=$((sum + i))   
         done
