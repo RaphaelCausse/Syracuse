@@ -2,10 +2,10 @@
 
 # Script file : syracuse.bash
 # MUNOZ Melvyn, CAUSSE Raphael
-# CY TECH PREING 2 MI
+# CY TECH PREING 2 MI 2
 
 function usage {
-    echo -e "\e[1mUsage:\e[0m\n\t$0 [options] [start] [end]\n"
+    echo -e "\e[1mUsage:\e[0m\n\t$0 [options]  [start] [end]\n"
     echo -e "\e[1mOptions:\e[0m"
     echo -e "\t\e[1m-s\e[0m\tDisplay the synthesis of current execution.\n"
     echo -e "\t\e[1m-c\e[0m\tClean the project directory. ! Warning ! All files will be deleted after confirmation.\n"
@@ -15,22 +15,21 @@ function usage {
     exit 0
 }
 function clean {
-    if [ -d Data ] || [ -d Images ] || [ -d Synthesis ]; then
-        read -p "Do you want to delete all files in Data/ Images/ and Synthesis/ ? [Y/n] " -n 1
-        echo
-        if [[ ${REPLY} =~ ^[Yy]$ ]]; then
-            rm -rf Data/ Images/ Synthesis/
-            echo "Cleanup completed !"
-        fi
-    else 
-        echo "Project directory is already clean !"      
+    if [ ! -d Data ] || [ ! -d Images ] || [ ! -d Synthesis ]; then
+        echo "Project directory is already clean !"
+        exit 0   
     fi
-    exit 0
+    read -p "Do you want to delete all files in Data/ Images/ and Synthesis/ ? [Y/n] " -n 1 -r
+    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+        rm -rf Data/ Images/ Synthesis/
+        echo -e "\nCleanup completed !"
+        exit 0
+    fi
 }
 function error_args {
     echo -e "\e[1m\e[31mError:\e[0m unvalid argument:"
     echo "Run « ./syracuse.bash -h » for more information."
-    exit 0
+    exit 1
 }
 
 GRN='\033[1;32m'
@@ -47,18 +46,22 @@ while getopts "sch" options; do
         *)  error_args ;;
     esac
 done
-# Check for valid arguments, 2 strictly positive integers
-if [ $# -eq 2 ] && [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; then
+# Check for 2 valid arguments, 2 strictly positive integers
+if [ $# -ne 2 ]; then 
+    error_args
+fi
+if [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; then
     # Create subdirectories to store data
     mkdir -p Data Images Synthesis
-    # Compile C prog only if main.c is newer than Data/syracuse
+    # Compare dates of main.c and syracuse to compile or recompile it if necessary
     if [ "main.c" -nt "Data/syracuse" ]; then
         gcc -O3 main.c -o Data/syracuse
     fi
-    # Progress bar
+    # Display progress bar
     total=$(($2 - $1)); step=$((total / 10)); percent=0; bar=""; dot=40; count=0
-    echo -ne "Progress:\t[........................................] ${percent}%\r"
-    # Call C exectuable to create alll data files
+    echo -e "Processing..."
+    echo -ne "[........................................] ${percent}%\r"
+    # Build data files with C executable 
     for i in $(seq $1 $2); do
         ./Data/syracuse ${i} Data/f${i}.dat
         # Collect data from data files and store them in temporary files
@@ -66,42 +69,46 @@ if [ $# -eq 2 ] && [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; the
         echo "${i} $(tail -3 Data/f${i}.dat | head -1 | cut -d'=' -f2)" >> altitude_max
         echo "${i} $(tail -2 Data/f${i}.dat | head -1 | cut -d'=' -f2)" >> flight_time
         echo "${i} $(tail -1 Data/f${i}.dat | cut -d'=' -f2)" >> altitude_time
-        # Progress bar
+        # Update progress bar
         ((count++))
         if [ ${count} -ge ${step} ]; then
-            bar+="##"; dot=$((dot - 2)); percent=$((percent + 5)); count=0
-            echo -ne "Progress:\t[${GRN}${bar}${NC}"
-            for i in $(seq ${dot} -1 1); do
-                echo -ne "."
-            done
+            bar+="##"; ((dot -= 2)); ((percent += 5)); count=0
+            echo -ne "[${GRN}${bar}${NC}"
+            for i in $(seq ${dot} -1 1); do echo -ne "."; done
             echo -ne "] ${percent}%\r"
         fi
     done
     # Bonus: data synthesis
     sum=0
     synth_file="Synthesis/synthese-$1-$2.txt"
-    list_files=("altitude_max" "flight_time" "altitude_time")
-    echo -e "Syracuse Synthesis [$1;$2]\n" >> ${synth_file}
-    for i in $(seq 0 2); do
-        # Collect min, max and average of each file in list_files
-        echo "${list_files[${i}]}:" >> ${synth_file}
-        min_max=($(sort -k2n ${list_files[${i}]} | sed -n '1p;$p' | cut -d' ' -f2))
-        echo -e "\tmin = ${min_max[0]}" >> ${synth_file}
-        echo -e "\tmax = ${min_max[1]}" >> ${synth_file}
-        len=$(cat ${list_files[${i}]} | wc -l) && values=$(cat ${list_files[${i}]} | cut -d' ' -f2)
-        for i in ${values[@]}; do
-            sum=$((sum + i))   
+    # Build synthesis if it doesn't already exist
+    if [ ! -f ${synth_file} ]; then
+        list_files=("altitude_max" "flight_time" "altitude_time")
+        echo -e "Syracuse Synthesis [$1;$2]\n" >> ${synth_file}
+        for i in $(seq 0 2); do
+            # Collect min and max of each file in list_files
+            echo "${list_files[${i}]}:" >> ${synth_file}
+            min_max=($(sort -k2n ${list_files[${i}]} | sed -n '1p;$p' | cut -d' ' -f2))
+            echo -e "\tmin = ${min_max[0]}" >> ${synth_file}
+            echo -e "\tmax = ${min_max[1]}" >> ${synth_file}
+            # Calculate average of each file in list_files
+            len=$(cat ${list_files[${i}]} | wc -l) && values=$(cat ${list_files[${i}]} | cut -d' ' -f2)
+            for i in ${values[@]}; do ((sum += i)); done
+            avg=$(echo "scale=2; ${sum}/${len}" | bc -l)
+            echo -e "\tavg = ${avg}" >> ${synth_file}
+            # Update progress bar
+            bar+="####"; ((dot -= 4)); ((percent += 10))
+            echo -ne "[${GRN}${bar}${NC}"
+            for i in $(seq ${dot} -1 1); do echo -ne "."; done
+            echo -ne "] ${percent}%\r"
         done
-        avg=$(echo "scale=2; ${sum}/${len}" | bc -l)
-        echo -e "\tavg = ${avg}" >> ${synth_file}
-        # Progress bar
-        bar+="####"; dot=$((dot - 4)); percent=$((percent + 10))
-        echo -ne "Progress:\t[${GRN}${bar}${NC}"
-        for i in $(seq ${dot} -1 1); do
-            echo -ne "."
-        done
+    else
+        # Update progress bar
+        bar+="############"; ((dot -= 12)); ((percent += 30))
+        echo -ne "[${GRN}${bar}${NC}"
+        for i in $(seq ${dot} -1 1); do echo -ne "."; done
         echo -ne "] ${percent}%\r"
-    done
+    fi
     # Analyze data with gnuplot
     gnuplot -persist <<- EOFMarker
         set terminal jpeg size 1920,1080
@@ -134,14 +141,11 @@ if [ $# -eq 2 ] && [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; the
 EOFMarker
     # Remove temporary data files 
     rm Data/*.dat sequence_data altitude_max flight_time altitude_time
-    # Progress bar
+    # Update progress bar
     bar+="########"; percent=100
-    echo -e "Progress:\t[${GRN}${bar}${NC}] ${percent}%"
+    echo -e "[${GRN}${bar}${NC}] ${percent}%\nTask completed !\n"
     # Display synthesis if option -s is given
     if [ ${arg_s} -eq 1 ]; then
-        echo -e "\n"
         cat ${synth_file}
     fi
-else
-    error_args
 fi
