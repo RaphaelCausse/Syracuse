@@ -43,7 +43,7 @@ $   ./syracuse.bash [start] [end]
 ```bash
 $   ./syracuse.bash -c
 ```
-**Run** the bash script and diplay synthesis right after :
+**Run** the bash script and display synthesis right after :
 ```bash
 $   ./syracuse.bash -s [start] [end]
 ```
