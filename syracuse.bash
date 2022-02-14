@@ -27,7 +27,7 @@ function clean {
     fi
 }
 function error_args {
-    echo -e "\e[1m\e[31mError:\e[0m unvalid argument:"
+    echo -e "\e[1m\e[31mError:\e[0m unvalid arguments:"
     echo "Run « ./syracuse.bash -h » for more information."
     exit 1
 }
@@ -60,7 +60,7 @@ if [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; then
     # Display progress bar
     total=$(($2 - $1)); step=$((total / 10)); percent=0; bar=""; dot=40; count=0
     echo -e "Processing..."
-    echo -ne "[........................................] ${percent}%\r"
+    echo -ne "Generate data:\t\t[........................................] ${percent}%\r"
     # Build data files with C executable 
     for i in $(seq $1 $2); do
         ./Data/syracuse ${i} Data/f${i}.dat
@@ -73,7 +73,7 @@ if [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; then
         ((count++))
         if [ ${count} -ge ${step} ]; then
             bar+="##"; ((dot -= 2)); ((percent += 5)); count=0
-            echo -ne "[${GRN}${bar}${NC}"
+            echo -ne "Generate data:\t\t[${GRN}${bar}${NC}"
             for i in $(seq ${dot} -1 1); do echo -ne "."; done
             echo -ne "] ${percent}%\r"
         fi
@@ -98,14 +98,14 @@ if [[ $1 =~ ^[1-9]+[0-9]*$ ]] && [[ $2 =~ ^[1-9]+[0-9]*$ ]]; then
             echo -e "\tavg = ${avg}" >> ${synth_file}
             # Update progress bar
             bar+="####"; ((dot -= 4)); ((percent += 10))
-            echo -ne "[${GRN}${bar}${NC}"
+            echo -ne "Build synthesis:\t[${GRN}${bar}${NC}"
             for i in $(seq ${dot} -1 1); do echo -ne "."; done
             echo -ne "] ${percent}%\r"
         done
     else
         # Update progress bar
         bar+="############"; ((dot -= 12)); ((percent += 30))
-        echo -ne "[${GRN}${bar}${NC}"
+        echo -ne "Build synthesis:\t[${GRN}${bar}${NC}"
         for i in $(seq ${dot} -1 1); do echo -ne "."; done
         echo -ne "] ${percent}%\r"
     fi
@@ -143,9 +143,11 @@ EOFMarker
     rm Data/*.dat sequence_data altitude_max flight_time altitude_time
     # Update progress bar
     bar+="########"; percent=100
-    echo -e "[${GRN}${bar}${NC}] ${percent}%\nTask completed !\n"
+    echo -e "Generate graphics:\t[${GRN}${bar}${NC}] ${percent}%\nTask completed !\n"
     # Display synthesis if option -s is given
     if [ ${arg_s} -eq 1 ]; then
         cat ${synth_file}
     fi
+else
+    error_args
 fi
