@@ -30,21 +30,25 @@ chmod +x syracuse.bash
 ```
 **_NOTE:_**<br>
 `start`,`end` must be positive integers.
-<br>
+<br><br>
 
 ## FEATURES
 
+**Help** message :
+```bash
+./syracuse.bash -h
+```
 **Clean** the project directory :
 ```bash
 ./syracuse.bash -c
 ```
 **Run** the bash script and display synthesis right after :
 ```bash
-./syracuse.bash -s [start] [end]
+./syracuse.bash -s <start> <end>
 ```
 <br>
 
 ## AUTHORS
 
 Melvyn MUNOZ and Raphael CAUSSE, from CY TECH. <br>
-11/2021, developped on Linux Ubuntu and Manjaro, Visual Studio Code.
+01/2022, developped on Linux Ubuntu and Manjaro, Visual Studio Code.
