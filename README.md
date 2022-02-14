@@ -8,48 +8,43 @@ Syracuse's conjecture implemented in C and Bash scripting to analyse and visuali
 
 ## INSTALLATION
 
-Make sure you have installed **Git**. If not :
-* Linux : https://youtu.be/PLQQ3tJwBJg<br>
-* Windows : https://youtu.be/2j7fD92g-gE<br>
-
-**Clone** this repository on your desktop :
+**Clone** this repository :
 ```bash
-$   cd Desktop
-$   git clone https://github.com/RaphaelCausse/Syracuse.git
+git clone https://github.com/RaphaelCausse/Syracuse.git
+```
+**Move** to the cloned folder :
+```bash
+cd Syracuse
 ```
 <br>
 
 ## EXECUTION
 
-**Move** to the cloned folder :
-```bash
-$   cd Syracuse
-```
 **Add** execution rights to the script :
 ```bash
-$   chmod +x syracuse.bash
+chmod +x syracuse.bash
 ```
 **Run** the bash script :
 ```bash
-$   ./syracuse.bash [start] [end]
+./syracuse.bash <start> <end>
 ```
 **_NOTE:_**<br>
-`[start]`,`[end]` must be positive integers.
-<br><br>
+`start`,`end` must be positive integers.
+<br>
 
 ## FEATURES
 
 **Clean** the project directory :
 ```bash
-$   ./syracuse.bash -c
+./syracuse.bash -c
 ```
 **Run** the bash script and display synthesis right after :
 ```bash
-$   ./syracuse.bash -s [start] [end]
+./syracuse.bash -s [start] [end]
 ```
 <br>
 
-### AUTHORS
+## AUTHORS
 
 Melvyn MUNOZ and Raphael CAUSSE, from CY TECH. <br>
 11/2021, developped on Linux Ubuntu and Manjaro, Visual Studio Code.
