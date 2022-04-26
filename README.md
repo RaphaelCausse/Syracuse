@@ -9,11 +9,11 @@ Syracuse's conjecture implemented in C and Bash scripting to analyse and visuali
 ## INSTALLATION
 
 **Clone** this repository :
-```bash
+```
 git clone https://github.com/RaphaelCausse/Syracuse.git
 ```
 **Move** to the cloned folder :
-```bash
+```
 cd Syracuse
 ```
 <br>
@@ -21,30 +21,30 @@ cd Syracuse
 ## EXECUTION
 
 **Add** execution rights to the script :
-```bash
-chmod +x syracuse.bash
 ```
-**Run** the bash script :
-```bash
-./syracuse.bash <start> <end>
+chmod +x syracuse.
+```
+**Run** the  script :
+```
+./syracuse. <start> <end>
 ```
 **_NOTE:_**<br>
-`start`,`end` must be positive integers.
+`start`, `end` must be positive integers.
 <br><br>
 
 ## FEATURES
 
 **Help** message :
-```bash
-./syracuse.bash -h
+```
+./syracuse. -h
 ```
 **Clean** the project directory :
-```bash
-./syracuse.bash -c
 ```
-**Run** the bash script and display synthesis right after :
-```bash
-./syracuse.bash -s <start> <end>
+./syracuse. -c
+```
+**Run** the  script and display synthesis right after :
+```
+./syracuse. -s <start> <end>
 ```
 <br>
 
