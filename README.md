@@ -3,7 +3,7 @@
 
 # SYRACUSE PROJECT
 
-Syracuse's conjecture implemented in C and Bash scripting to analyse and visualize data using Gnuplot.
+Syracuse's conjecture implemented in C and Bash scripting to generate graphics using Gnuplot.
 <br><br>
 
 ## INSTALLATION
@@ -12,7 +12,7 @@ Syracuse's conjecture implemented in C and Bash scripting to analyse and visuali
 ```
 git clone https://github.com/RaphaelCausse/Syracuse.git
 ```
-**Move** to the cloned folder :
+**Move** to the cloned directory :
 ```
 cd Syracuse
 ```
@@ -50,5 +50,6 @@ chmod +x syracuse.
 
 ## AUTHORS
 
-Melvyn MUNOZ and Raphael CAUSSE, from CY TECH. <br>
+Melvyn MUNOZ and Raphael CAUSSE, from CY TECH.
+
 01/2022, developped on Linux Ubuntu and Manjaro, Visual Studio Code.
